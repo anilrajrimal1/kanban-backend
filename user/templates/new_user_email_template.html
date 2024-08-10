@@ -1,0 +1,19 @@
+{% autoescape off %}
+<h4>Hello {{ user_title }},</h4><br>
+
+You have just registered for Kanban Board. <br>
+To complete your registration, please click this link below.
+<br>
+<br>
+<p>
+    <a target="_blank"
+        style="text-decoration:none; background-color: #76ff00; text-align: center; border: black 1px solid; color: #fff; padding:5px 5px; display:block;"
+        href="{{ domain }}{% url 'email_activate' uidb64=uid token=token %}">
+        <strong>Activate Now</strong></a>
+</p>
+<br>
+</br>
+{% endautoescape %}
+<p>Best Regards,<br>
+    <b>Kanban Board</b><br>
+</p>
