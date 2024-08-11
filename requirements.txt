@@ -31,7 +31,6 @@ click-repl==0.2.0
 cligj==0.7.2
 colorama==0.4.4
 comm==0.2.0
-command-not-found==0.3
 coreapi==2.3.3
 coreschema==0.0.4
 cron-descriptor==1.4.3
