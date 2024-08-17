@@ -4,9 +4,7 @@ from django.urls import include, path
 from rest_framework import routers
 from rest_framework_simplejwt import views as jwt_views
 
-from user.views import (
-    CustomFacebookLoginView,
-    CustomGoogleLoginView,
+from .views import (
     CustomTokenObtainPairView,
     UserProfileViewSet,
     UserRegisterViewSet,
@@ -38,8 +36,4 @@ urlpatterns = [
         reset_passoword,
         name="reset_password",
     ),
-    # remove these urls and respective views, serializers if you don't need social login
-    path("facebook-sign-in/", CustomFacebookLoginView.as_view(), name="fb_sign_in"),
-    path("google-sign-in/", CustomGoogleLoginView.as_view(), name="google_sign_in"),
-    path("accounts/", include("allauth.urls"), name="socialaccount_signup"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

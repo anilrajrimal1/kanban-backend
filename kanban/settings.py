@@ -51,8 +51,9 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.facebook",
     "allauth.socialaccount.providers.google",
-
-    "rest_framework.authtoken"
+    "rest_framework_swagger",
+    "rest_framework.authtoken",
+    "drf_yasg"
 ]
 
 
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "allauth.account.middleware.AccountMiddleware"
 ]
 
 ROOT_URLCONF = "kanban.urls"
@@ -162,7 +164,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATIC_URL = "static/"
 
 # SITE_ID = int("SITE_ID")
-BACKEND_URL = "http://127.0.0.1:8002/"
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000/")
 # X_FRAME_OPTIONS = 'ALLOW-FROM http://localhost'
 
 # Default primary key field type
