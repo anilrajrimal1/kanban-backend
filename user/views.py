@@ -1,15 +1,3 @@
-from datetime import timezone
-from allauth.account.adapter import get_adapter
-from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from dj_rest_auth.serializers import (
-    JWTSerializer,
-    JWTSerializerWithExpiration,
-    LoginSerializer,
-    TokenSerializer,
-)
-from dj_rest_auth.views import create_token
-from dj_rest_auth.utils import jwt_encode
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import User
@@ -28,7 +16,6 @@ from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView, Response
@@ -39,11 +26,13 @@ from .models import UserProfile
 
 from .serializers import (
     CustomTokenObtainPairSerializer,
-    SocialLoginSerializer,
     UserProfileSerializer,
     UserSerializer,
 )
 from .utils import account_activation_token
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 serializers = getattr(settings, "REST_AUTH_SERIALIZERS", {})
 
@@ -119,6 +108,22 @@ class UserRegisterViewSet(GenericViewSet, CreateModelMixin):
 
 
 class UserSignIn(APIView):
+    @swagger_auto_schema(
+        operation_description="Login endpoint",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING, description='The username or email of the user'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='The password of the user'),
+            },
+            required=['username', 'password']
+        ),
+        responses={
+            200: "Token, User ID, Email, Username",
+            400: "Error message",
+            403: "Invalid password message",
+        }
+    )
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -219,6 +224,22 @@ def change_password(request):
         )
 
 
+
+@swagger_auto_schema(
+    operation_description="Forgot password endpoint",
+    method="post", 
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'email': openapi.Schema(type=openapi.TYPE_STRING, description='The email of the user'),
+        },
+        required=['email']
+    ),
+    responses={
+        200: "Password reset email sent",
+        400: "Error message"
+    }
+)
 @api_view(["POST"])
 def forgot_password(request):
     """
@@ -233,7 +254,7 @@ def forgot_password(request):
 
         # password reset link email
         current_site = settings.BACKEND_URL
-        email_subject = "Reset Password for DVS System."
+        email_subject = "Reset Password for Kanban Board."
         template = "forgot_password_email_template.html"
 
         email_data = {
@@ -312,126 +333,6 @@ def reset_passoword(request, uidb64, token):
             "forgot_password_confirm_password.html",
             {"action": "invalid_link", "uidb64": uidb64, "token": token},
         )
-
-
-# views for social login (facebook and google), remove all code below this if you don't need social login
-class LoginView(GenericAPIView):
-    """
-    Check the credentials and return the REST Token
-    if the credentials are valid and authenticated.
-    Calls Django Auth login method to register User ID
-    in Django session framework
-    Accept the following POST parameters: username, password
-    Return the REST Framework Token Object's key.
-    """
-
-    permission_classes = (AllowAny,)
-    serializer_class = LoginSerializer
-    throttle_scope = "dj_rest_auth"
-
-    user = None
-    access_token = None
-    token = None
-
-    @sensitive_post_parameters_m
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def process_login(self):
-        django_login(self.request, self.user)
-
-    def get_response_serializer(self):
-        if getattr(settings, "REST_USE_JWT", False):
-
-            if getattr(settings, "JWT_AUTH_RETURN_EXPIRATION", False):
-                response_serializer = JWTSerializerWithExpiration
-            else:
-                response_serializer = JWTSerializer
-
-        else:
-            response_serializer = TokenSerializer
-        return response_serializer
-
-    def login(self):
-        self.user = self.serializer.validated_data["user"]
-        token_model = get_token_model()
-
-        if getattr(settings, "REST_USE_JWT", False):
-            self.access_token, self.refresh_token = jwt_encode(self.user)
-        elif token_model:
-            self.token = create_token(token_model, self.user, self.serializer)
-
-        if getattr(settings, "REST_SESSION_LOGIN", True):
-            self.process_login()
-
-    def get_response(self):
-        serializer_class = self.get_response_serializer()
-
-        if getattr(settings, "REST_USE_JWT", False):
-            from rest_framework_simplejwt.settings import api_settings as jwt_settings
-
-            access_token_expiration = (
-                timezone.now() + jwt_settings.ACCESS_TOKEN_LIFETIME
-            )
-            refresh_token_expiration = (
-                timezone.now() + jwt_settings.REFRESH_TOKEN_LIFETIME
-            )
-            return_expiration_times = getattr(
-                settings, "JWT_AUTH_RETURN_EXPIRATION", False
-            )
-
-            data = {
-                "user": self.user,
-                "access_token": self.access_token,
-                "refresh_token": self.refresh_token,
-            }
-
-            if return_expiration_times:
-                data["access_token_expiration"] = access_token_expiration
-                data["refresh_token_expiration"] = refresh_token_expiration
-
-            serializer = serializer_class(
-                instance=data,
-                context=self.get_serializer_context(),
-            )
-        elif self.token:
-            serializer = serializer_class(
-                instance=self.token,
-                context=self.get_serializer_context(),
-            )
-        else:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        response = Response(serializer.data, status=status.HTTP_200_OK)
-        if getattr(settings, "REST_USE_JWT", False):
-            from .jwt_auth import set_jwt_cookies
-
-            set_jwt_cookies(response, self.access_token, self.refresh_token)
-        return response
-
-    def post(self, request, *args, **kwargs):
-        self.request = request
-        self.serializer = self.get_serializer(data=self.request.data)
-        self.serializer.is_valid(raise_exception=True)
-
-        self.login()
-        return self.get_response()
-
-
-class SocialLoginView(LoginView):
-    serializer_class = SocialLoginSerializer
-
-    def process_login(self):
-        get_adapter(self.request).login(self.request, self.user)
-
-
-class CustomFacebookLoginView(SocialLoginView):
-    adapter_class = FacebookOAuth2Adapter
-
-
-class CustomGoogleLoginView(SocialLoginView):
-
-    adapter_class = GoogleOAuth2Adapter
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
