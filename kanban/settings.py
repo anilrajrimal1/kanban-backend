@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", ")p5*u2d&yx5af_%kd#g+ywz9q_2uh-t-iy9ga
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -112,7 +112,7 @@ DATABASES = {
         "USER": os.environ.get("POSTGRES_USER", "postgres"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
-        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "HOST": os.environ.get("POSTGRES_HOST", "db"),
     }
 }
 
