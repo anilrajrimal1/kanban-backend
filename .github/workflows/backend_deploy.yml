@@ -56,10 +56,11 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
-        ssh -i private_key.pem $SERVER_USER@$SERVER_HOST "
+        ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
+        ssh -i private_key.pem $REMOTE_USER@$REMOTE_HOST "
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/kanban-backend:${{ github.sha }} &&
-          docker-compose -f /home/ubuntu/Projects/kanban-backend/docker-compose.yml down &&
-          docker-compose -f /home/ubuntu/Projects/kanban-backend/docker-compose.yml up -d"
+          docker-compose -f /path/to/deployment/docker-compose.yml down &&
+          docker-compose -f /path/to/deployment/docker-compose.yml up -d"
 
   cleanup:
     runs-on: ubuntu-latest
