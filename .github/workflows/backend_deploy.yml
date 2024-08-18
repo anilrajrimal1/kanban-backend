@@ -54,10 +54,13 @@ jobs:
         SERVER_USER: ${{ secrets.SERVER_USER }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        echo "$SSH_PRIVATE_KEY" > private_key.pem
-        chmod 600 private_key.pem
-        ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
-        ssh -i private_key.pem $REMOTE_USER@$REMOTE_HOST "
+        mkdir -p ~/.ssh
+        touch ~/.ssh/id_rsa
+        chmod 666 ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 400 ~/.ssh/id_rsa
+        ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
+        ssh -i id_rsa $SERVER_USER@$SERVER_HOST "
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/kanban-backend:${{ github.sha }} &&
           docker-compose -f /path/to/deployment/docker-compose.yml down &&
           docker-compose -f /path/to/deployment/docker-compose.yml up -d"
