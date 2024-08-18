@@ -33,11 +33,11 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/kanban-backend:${{ github.sha }} .
-        docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/kanban-backend:${{ github.sha }}
-
+  
     - name: Push Docker image to DockerHub
       run: |
         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/kanban-backend:${{ github.sha }}
+  
 
   deploy:
     runs-on: ubuntu-latest
