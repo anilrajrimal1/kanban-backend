@@ -62,8 +62,8 @@ jobs:
         ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
         ssh -i id_rsa $SERVER_USER@$SERVER_HOST "
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/kanban-backend:${{ github.sha }} &&
-          docker-compose -f /path/to/deployment/docker-compose.yml down &&
-          docker-compose -f /path/to/deployment/docker-compose.yml up -d"
+          docker compose -f /path/to/deployment/docker-compose.yml down &&
+          docker compose -f /path/to/deployment/docker-compose.yml up -d"
 
   cleanup:
     runs-on: ubuntu-latest
