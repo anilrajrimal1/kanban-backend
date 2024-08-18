@@ -61,9 +61,10 @@ jobs:
         chmod 400 ~/.ssh/id_rsa
         ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
         ssh -i id_rsa $SERVER_USER@$SERVER_HOST "
+          cd /home/ubuntu/Projects/kanban-backend/
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/kanban-backend:${{ github.sha }} &&
-          docker compose -f /path/to/deployment/docker-compose.yml down &&
-          docker compose -f /path/to/deployment/docker-compose.yml up -d"
+          docker compose down &&
+          docker compose up -d"
 
   cleanup:
     runs-on: ubuntu-latest
