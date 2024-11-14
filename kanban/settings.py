@@ -21,12 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", ")p5*u2d&yx5af_%kd#g+ywz9q_2uh-t-iy9gah%=q$z1q35dzb")
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", ")p5*u2d&yx5af_%kd#g+ywz9q_2uh-t-iy9gah%=q$z1q35dzb"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -42,7 +44,6 @@ INSTALLED_APPS = [
     "api",
     "core",
     "user",
-
     # social login
     "allauth",
     "allauth.account",
@@ -53,7 +54,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "rest_framework_swagger",
     "rest_framework.authtoken",
-    "drf_yasg"
+    "drf_yasg",
 ]
 
 
@@ -76,7 +77,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "allauth.account.middleware.AccountMiddleware"
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "kanban.urls"

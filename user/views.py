@@ -113,16 +113,21 @@ class UserSignIn(APIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'username': openapi.Schema(type=openapi.TYPE_STRING, description='The username or email of the user'),
-                'password': openapi.Schema(type=openapi.TYPE_STRING, description='The password of the user'),
+                "username": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="The username or email of the user",
+                ),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="The password of the user"
+                ),
             },
-            required=['username', 'password']
+            required=["username", "password"],
         ),
         responses={
             200: "Token, User ID, Email, Username",
             400: "Error message",
             403: "Invalid password message",
-        }
+        },
     )
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
@@ -224,21 +229,19 @@ def change_password(request):
         )
 
 
-
 @swagger_auto_schema(
     operation_description="Forgot password endpoint",
-    method="post", 
+    method="post",
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'email': openapi.Schema(type=openapi.TYPE_STRING, description='The email of the user'),
+            "email": openapi.Schema(
+                type=openapi.TYPE_STRING, description="The email of the user"
+            ),
         },
-        required=['email']
+        required=["email"],
     ),
-    responses={
-        200: "Password reset email sent",
-        400: "Error message"
-    }
+    responses={200: "Password reset email sent", 400: "Error message"},
 )
 @api_view(["POST"])
 def forgot_password(request):
