@@ -1,0 +1,27 @@
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - "*"
+
+name: Code Check
+
+jobs:
+  build:
+    name: Code Check
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.9.17
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9.17
+
+      - name: Check Version
+        run: python --version
+
+      - name: PreCommit
+        uses: pre-commit/action@v3.0.1
